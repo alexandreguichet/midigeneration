@@ -1,0 +1,317 @@
+{
+  "metadata": {
+    "title": "Universal Music Generator - Template",
+    "composer": "AI Generated",
+    "genre": "configurable",
+    "tempo": 120,
+    "time_signature": [4, 4],
+    "ticks_per_beat": 480,
+    "output_filename": "generated_music.mid",
+    "swing_ratio": 0.5,
+    "key_signature": "C",
+    "total_instruments": 2,
+    "ensemble_type": "Template Configuration",
+    "instrument_roles": {
+      "instrument_0": "Primary melody, lead voice, main musical content",
+      "instrument_1": "Harmonic support, bass line, rhythmic foundation"
+    },
+    "performance_notes": "Template configuration - customize for your specific musical needs",
+    "difficulty_level": "Beginner to Advanced (configurable)",
+    "estimated_duration": "2-3 minutes (configurable)"
+  },
+  "instruments": {
+    "instrument_0": {
+      "name": "Piano Right Hand",
+      "midi_channel": 0,
+      "program_number": 0,
+      "default_velocity": 80,
+      "velocity_range": [60, 120],
+      "note_range": [60, 96],
+      "default_duration_multiplier": 1.0
+    },
+    "instrument_1": {
+      "name": "Piano Left Hand", 
+      "midi_channel": 1,
+      "program_number": 0,
+      "default_velocity": 70,
+      "velocity_range": [50, 100],
+      "note_range": [36, 72],
+      "default_duration_multiplier": 1.0
+    }
+  },
+  "song_structure": {
+    "sections": ["intro", "verse_A", "chorus", "verse_B", "chorus", "bridge", "chorus", "outro"],
+    "section_definitions": {
+      "intro": {
+        "length_bars": 4,
+        "chord_progression": ["C", "Am", "F", "G"],
+        "pattern_assignment": {
+          "instrument_0": "intro_melody",
+          "instrument_1": "intro_bass"
+        }
+      },
+      "verse_A": {
+        "length_bars": 8,
+        "chord_progression": ["C", "Am", "F", "G", "C", "Am", "F", "G"],
+        "pattern_assignment": {
+          "instrument_0": "verse_melody",
+          "instrument_1": "verse_bass"
+        }
+      },
+      "chorus": {
+        "length_bars": 8,
+        "chord_progression": ["F", "C", "G", "Am", "F", "C", "G", "C"],
+        "pattern_assignment": {
+          "instrument_0": "chorus_melody",
+          "instrument_1": "chorus_bass"
+        }
+      },
+      "verse_B": {
+        "length_bars": 8,
+        "chord_progression": ["C", "Am", "F", "G", "C", "Am", "F", "G"],
+        "pattern_assignment": {
+          "instrument_0": "verse_melody_variation",
+          "instrument_1": "verse_bass"
+        }
+      },
+      "bridge": {
+        "length_bars": 8,
+        "chord_progression": ["Am", "F", "C", "G", "Am", "F", "C", "G"],
+        "pattern_assignment": {
+          "instrument_0": "bridge_melody",
+          "instrument_1": "bridge_bass"
+        }
+      },
+      "outro": {
+        "length_bars": 4,
+        "chord_progression": ["F", "G", "C", "C"],
+        "pattern_assignment": {
+          "instrument_0": "outro_melody",
+          "instrument_1": "outro_bass"
+        }
+      }
+    }
+  },
+  "chord_library": {
+    "C": {
+      "root_note": 60,
+      "chord_tones": [0, 4, 7],
+      "extensions": [11, 14, 19],
+      "bass_note": 48,
+      "voicings": {
+        "close": [60, 64, 67],
+        "open": [60, 67, 72],
+        "spread": [48, 64, 67, 72]
+      },
+      "scales": {
+        "major": [0, 2, 4, 5, 7, 9, 11],
+        "pentatonic": [0, 2, 4, 7, 9]
+      }
+    },
+    "Am": {
+      "root_note": 57,
+      "chord_tones": [0, 3, 7],
+      "extensions": [10, 14, 17],
+      "bass_note": 45,
+      "voicings": {
+        "close": [57, 60, 64],
+        "open": [57, 64, 69],
+        "spread": [45, 60, 64, 69]
+      },
+      "scales": {
+        "natural_minor": [0, 2, 3, 5, 7, 8, 10],
+        "pentatonic": [0, 3, 5, 7, 10]
+      }
+    },
+    "F": {
+      "root_note": 65,
+      "chord_tones": [0, 4, 7],
+      "extensions": [11, 14, 19],
+      "bass_note": 53,
+      "voicings": {
+        "close": [65, 69, 72],
+        "open": [65, 72, 77],
+        "spread": [53, 69, 72, 77]
+      },
+      "scales": {
+        "major": [0, 2, 4, 5, 7, 9, 11],
+        "pentatonic": [0, 2, 4, 7, 9]
+      }
+    },
+    "G": {
+      "root_note": 67,
+      "chord_tones": [0, 4, 7],
+      "extensions": [10, 14, 19],
+      "bass_note": 55,
+      "voicings": {
+        "close": [67, 71, 74],
+        "open": [67, 74, 79],
+        "spread": [55, 71, 74, 79]
+      },
+      "scales": {
+        "major": [0, 2, 4, 5, 7, 9, 11],
+        "mixolydian": [0, 2, 4, 5, 7, 9, 10]
+      }
+    }
+  },
+  "pattern_library": {
+    "intro_melody": {
+      "instrument": "instrument_0",
+      "note_pattern": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      "note_source": "chord_voicing_close",
+      "velocity_pattern": [80, 0, 75, 0, 80, 0, 75, 0, 80, 0, 75, 0, 80, 0, 75, 0],
+      "duration_pattern": [240, 0, 240, 0, 240, 0, 240, 0, 240, 0, 240, 0, 240, 0, 240, 0],
+      "timing_offset": 0
+    },
+    "intro_bass": {
+      "instrument": "instrument_1", 
+      "note_pattern": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      "note_source": "bass_note",
+      "velocity_pattern": [70, 0, 0, 0, 70, 0, 0, 0, 70, 0, 0, 0, 70, 0, 0, 0],
+      "duration_pattern": [480, 0, 0, 0, 480, 0, 0, 0, 480, 0, 0, 0, 480, 0, 0, 0],
+      "timing_offset": 0
+    },
+    "verse_melody": {
+      "instrument": "instrument_0",
+      "note_pattern": [2, 3, 2, 0, 3, 2, 0, 0, 2, 3, 2, 0, 3, 2, 0, 0],
+      "note_source": "scale_major",
+      "velocity_pattern": [85, 80, 85, 0, 80, 85, 0, 0, 85, 80, 85, 0, 80, 85, 0, 0],
+      "duration_pattern": [120, 120, 240, 0, 120, 240, 0, 0, 120, 120, 240, 0, 120, 240, 0, 0],
+      "timing_offset": 0,
+      "melodic_direction": "ascending",
+      "scale_start_degree": 1
+    },
+    "verse_melody_variation": {
+      "instrument": "instrument_0",
+      "note_pattern": [2, 3, 2, 0, 3, 2, 0, 0, 2, 3, 2, 0, 3, 2, 0, 0],
+      "note_source": "scale_pentatonic",
+      "velocity_pattern": [90, 85, 90, 0, 85, 90, 0, 0, 90, 85, 90, 0, 85, 90, 0, 0],
+      "duration_pattern": [120, 120, 240, 0, 120, 240, 0, 0, 120, 120, 240, 0, 120, 240, 0, 0],
+      "timing_offset": 0,
+      "melodic_direction": "descending",
+      "scale_start_degree": 5
+    },
+    "verse_bass": {
+      "instrument": "instrument_1",
+      "note_pattern": [4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "note_source": "walking_pattern",
+      "velocity_pattern": [65, 65, 65, 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "duration_pattern": [120, 120, 120, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "timing_offset": 0,
+      "walking_algorithm": "chromatic_approach"
+    },
+    "chorus_melody": {
+      "instrument": "instrument_0",
+      "note_pattern": [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+      "note_source": "arpeggio_up",
+      "velocity_pattern": [95, 90, 95, 90, 95, 90, 95, 90, 95, 90, 95, 90, 95, 90, 95, 90],
+      "duration_pattern": [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
+      "timing_offset": 0,
+      "arpeggio_octaves": 2
+    },
+    "chorus_bass": {
+      "instrument": "instrument_1",
+      "note_pattern": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      "note_source": "bass_note",
+      "velocity_pattern": [75, 0, 75, 0, 75, 0, 75, 0, 75, 0, 75, 0, 75, 0, 75, 0],
+      "duration_pattern": [240, 0, 240, 0, 240, 0, 240, 0, 240, 0, 240, 0, 240, 0, 240, 0],
+      "timing_offset": 0
+    },
+    "bridge_melody": {
+      "instrument": "instrument_0", 
+      "note_pattern": [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+      "note_source": "arpeggio_down",
+      "velocity_pattern": [85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85],
+      "duration_pattern": [90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90],
+      "timing_offset": 0,
+      "arpeggio_octaves": 1
+    },
+    "bridge_bass": {
+      "instrument": "instrument_1",
+      "note_pattern": [4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "note_source": "walking_pattern", 
+      "velocity_pattern": [70, 70, 70, 70, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "duration_pattern": [120, 120, 120, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "timing_offset": 0,
+      "walking_algorithm": "diatonic"
+    },
+    "outro_melody": {
+      "instrument": "instrument_0",
+      "note_pattern": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1],
+      "note_source": "chord_voicing_spread",
+      "velocity_pattern": [75, 0, 0, 0, 75, 0, 0, 0, 75, 0, 0, 0, 70, 65, 60, 55],
+      "duration_pattern": [360, 0, 0, 0, 360, 0, 0, 0, 360, 0, 0, 0, 360, 360, 360, 960],
+      "timing_offset": 0
+    },
+    "outro_bass": {
+      "instrument": "instrument_1",
+      "note_pattern": [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      "note_source": "bass_note",
+      "velocity_pattern": [65, 0, 0, 0, 65, 0, 0, 0, 65, 0, 0, 0, 60, 0, 0, 0],
+      "duration_pattern": [960, 0, 0, 0, 960, 0, 0, 0, 960, 0, 0, 0, 1920, 0, 0, 0],
+      "timing_offset": 0
+    }
+  },
+  "algorithmic_generators": {
+    "walking_pattern": {
+      "chromatic_approach": {
+        "description": "Generate chromatic approach notes to next chord root",
+        "algorithm": "target_approach",
+        "approach_distance": 2
+      },
+      "diatonic": {
+        "description": "Stay within the current scale",
+        "algorithm": "scale_steps",
+        "step_size_range": [1, 3]
+      }
+    },
+    "arpeggio_up": {
+      "description": "Ascending arpeggio through chord tones",
+      "algorithm": "chord_tone_sequence",
+      "direction": "ascending"
+    },
+    "arpeggio_down": {
+      "description": "Descending arpeggio through chord tones", 
+      "algorithm": "chord_tone_sequence",
+      "direction": "descending"
+    },
+    "scale_major": {
+      "description": "Major scale patterns",
+      "algorithm": "scale_sequence",
+      "scale_type": "major"
+    },
+    "scale_pentatonic": {
+      "description": "Pentatonic scale patterns",
+      "algorithm": "scale_sequence", 
+      "scale_type": "pentatonic"
+    }
+  },
+  "note_source_mappings": {
+    "chord_voicing_close": "voicings.close",
+    "chord_voicing_open": "voicings.open", 
+    "chord_voicing_spread": "voicings.spread",
+    "bass_note": "bass_note",
+    "walking_pattern": "algorithmic_generators.walking_pattern",
+    "arpeggio_up": "algorithmic_generators.arpeggio_up",
+    "arpeggio_down": "algorithmic_generators.arpeggio_down",
+    "scale_major": "algorithmic_generators.scale_major",
+    "scale_pentatonic": "algorithmic_generators.scale_pentatonic"
+  },
+  "global_modifiers": {
+    "swing_timing": {
+      "enabled": true,
+      "swing_ratio": 0.67,
+      "apply_to_subdivisions": ["eighth", "sixteenth"]
+    },
+    "humanization": {
+      "timing_variance": 5,
+      "velocity_variance": 8,
+      "enabled": true
+    },
+    "dynamics": {
+      "crescendo_sections": ["bridge"],
+      "diminuendo_sections": ["outro"],
+      "accent_beats": [1, 3]
+    }
+  }
+}

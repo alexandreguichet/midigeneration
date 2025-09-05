@@ -1,250 +1,380 @@
+#!/usr/bin/env python3
+"""
+Universal MIDI Generator - Data-Driven Music Composition
+Generates MIDI files from JSON configuration with complete separation of musical logic from code.
+"""
+
 import json
-from mido import MidiFile, MidiTrack, Message, MetaMessage, bpm2tempo
+import sys
 from pathlib import Path
+import mido
+import random
+import copy
+from typing import Dict, List, Any, Tuple, Optional
 
-class ConfigurableMIDIGenerator:
+
+class UniversalMIDIGenerator:
     """
-    Generic MIDI generator that creates compositions from JSON configuration files.
-    Supports flexible chord progressions, voicings, patterns, and arrangement styles.
+    Completely data-driven MIDI generator that reads all musical information from JSON configuration.
+    No hardcoded musical elements - everything is configurable.
     """
-    
-    def __init__(self):
-        self.mid = None
-        self.track = None
-        self.config = None
-        
-    def load_configuration(self, config_path_or_dict):
-        """Load configuration from JSON file or dictionary"""
-        if isinstance(config_path_or_dict, (str, Path)):
-            with open(config_path_or_dict, 'r') as f:
-                self.config = json.load(f)
-        elif isinstance(config_path_or_dict, dict):
-            self.config = config_path_or_dict
-        else:
-            raise ValueError("Configuration must be a file path or dictionary")
-        
-        # Validate required sections
-        required_sections = ['metadata', 'chord_progressions', 'chord_voicings', 'patterns']
-        for section in required_sections:
-            if section not in self.config:
-                raise ValueError(f"Missing required configuration section: {section}")
-    
-    def create_composition(self, output_filename=None):
-        """Generate MIDI composition from loaded configuration"""
-        if not self.config:
-            raise ValueError("No configuration loaded. Call load_configuration() first.")
-        
-        # Initialize MIDI file
-        metadata = self.config['metadata']
-        self.mid = MidiFile(ticks_per_beat=metadata.get('ticks_per_beat', 480))
-        self.track = MidiTrack()
-        self.mid.tracks.append(self.track)
-        
-        # Set tempo and time signature
-        tempo = bpm2tempo(metadata.get('tempo', 120))
-        self.track.append(MetaMessage('set_tempo', tempo=tempo, time=0))
-        self.track.append(MetaMessage('time_signature', 
-                                    numerator=metadata.get('time_signature', [4, 4])[0],
-                                    denominator=metadata.get('time_signature', [4, 4])[1],
-                                    clocks_per_click=24, 
-                                    notated_32nd_notes_per_beat=8, time=0))
-        self.track.append(MetaMessage('track_name', name=metadata.get('title', 'Generated Composition'), time=0))
-        
-        # Generate composition
-        events = self._generate_events()
-        self._events_to_midi(events)
-        
-        # Save file
-        if not output_filename:
-            output_filename = metadata.get('output_filename', 'generated_composition.mid')
-        
-        # Create output directory
-        output_dir = Path('output')
-        output_dir.mkdir(exist_ok=True)
-        
-        # Ensure the filename is in the output directory
-        output_path = output_dir / Path(output_filename).name
-        
-        self.mid.save(str(output_path))
-        print(f"🎼 Generated '{output_path}'")
-        print(f"📊 {metadata.get('title', 'Composition')} - {metadata.get('tempo', 120)} BPM")
-        return str(output_path)
-    
-    def _generate_events(self):
-        """Generate all musical events from configuration"""
-        events = []
-        ticks_per_beat = self.config['metadata'].get('ticks_per_beat', 480)
-        beats_per_measure = self.config['metadata'].get('time_signature', [4, 4])[0]
-        measure_length = ticks_per_beat * beats_per_measure
-        
-        # Get sections and their chord progressions
-        sections = self.config['chord_progressions']['sections']
-        structure = self.config['chord_progressions'].get('structure', list(sections.keys()))
-        
-        measure_num = 0
-        for section_name in structure:
-            section_chords = sections[section_name]
-            section_patterns = self.config['patterns'].get(section_name, self.config['patterns']['default'])
-            
-            print(f"\n🎵 Section: {section_name}")
-            
-            for chord_name in section_chords:
-                chord_voicing = self.config['chord_voicings'][chord_name]
-                measure_start_time = measure_num * measure_length
-                
-                print(f"  Bar {measure_num + 1}: {chord_name}")
-                
-                # Generate events for this measure
-                measure_events = self._generate_measure_events(
-                    chord_voicing, section_patterns, measure_start_time, ticks_per_beat
-                )
-                events.extend(measure_events)
-                measure_num += 1
-        
-        return events
 
-    
-    def _generate_measure_events(self, chord_voicing, patterns, start_time, ticks_per_beat):
-        """Generate events for a single measure with melody variations"""
-        events = []
-        sixteenth_note = ticks_per_beat // 4
+    def __init__(self, config_path: str):
+        """Initialize generator with configuration file."""
+        self.config = self.load_config(config_path)
+        self.midi_file = mido.MidiFile(ticks_per_beat=self.config['metadata']['ticks_per_beat'])
+        self.tracks = {}
+        self.current_chord_index = 0
+        self.current_section = None
         
-        # Get patterns for this measure
-        rh_pattern = patterns.get('right_hand', [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0])
-        lh_pattern = patterns.get('left_hand', [2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0])
-        melody_type = patterns.get('melody_type', 'chord')
-        
-        # Right hand events with melody variations
-        if 'right_hand' in chord_voicing:
-            melody_idx = 0
-            solo_idx = 0
-            
-            for i, hit in enumerate(rh_pattern):
-                if hit:
-                    current_time = start_time + (i * sixteenth_note)
-                    duration = patterns.get('rh_duration', ticks_per_beat // 2)
-                    velocity = patterns.get('rh_velocity', 80)
-                    
-                    if hit == 1:  # Chord comping
-                        notes = chord_voicing['right_hand']
-                    elif hit == 3 and melody_type == 'melody':  # Melodic line
-                        if 'right_hand_melody' in chord_voicing:
-                            melody_notes = chord_voicing['right_hand_melody']
-                            notes = [melody_notes[melody_idx % len(melody_notes)]]
-                            melody_idx += 1
-                        else:
-                            notes = chord_voicing['right_hand']
-                    elif hit == 4 and melody_type == 'solo':  # 16th note solo
-                        if 'right_hand_solo' in chord_voicing:
-                            solo_notes = chord_voicing['right_hand_solo']
-                            notes = [solo_notes[solo_idx % len(solo_notes)]]
-                            solo_idx += 1
-                        else:
-                            notes = chord_voicing['right_hand']
-                    else:
-                        notes = chord_voicing['right_hand']
-                    
-                    if isinstance(notes[0], list):  # Multiple note sets
-                        notes = notes[i % len(notes)]
-                    
-                    for note in notes:
-                        events.append(('note_on', note, current_time, 0, velocity))
-                        events.append(('note_off', note, current_time + duration, 0, velocity))
-        
-        # Left hand events with overlap prevention
-        if 'left_hand' in chord_voicing:
-            active_notes = {}  # Track active notes to prevent overlaps
-            
-            for i, pattern_type in enumerate(lh_pattern):
-                if pattern_type > 0:
-                    current_time = start_time + (i * sixteenth_note)
-                    velocity = patterns.get('lh_velocity', 70)
-                    
-                    if pattern_type == 1:  # Chord
-                        notes = chord_voicing['left_hand'].get('chord', [])
-                        duration = patterns.get('lh_chord_duration', ticks_per_beat // 2)
-                        note_type = 'chord'
-                    elif pattern_type == 2:  # Bass
-                        notes = [chord_voicing['left_hand'].get('bass', 48)]
-                        duration = patterns.get('lh_bass_duration', ticks_per_beat)
-                        note_type = 'bass'
-                    
-                    # Stop any overlapping notes of the same type
-                    if note_type in active_notes:
-                        for note, end_time in active_notes[note_type]:
-                            if end_time > current_time:
-                                # Cut off the previous note to avoid overlap
-                                events.append(('note_off', note, current_time - 1, 1, velocity))
-                    
-                    # Start new notes
-                    note_ends = []
-                    for note in notes:
-                        events.append(('note_on', note, current_time, 1, velocity))
-                        events.append(('note_off', note, current_time + duration, 1, velocity))
-                        note_ends.append((note, current_time + duration))
-                    
-                    active_notes[note_type] = note_ends
-        
-        return events
-    
-    def _events_to_midi(self, events):
-        """Convert events to MIDI messages"""
-        events.sort(key=lambda x: x[2])  # Sort by time
-        prev_time = 0
-        
-        for event_type, note, abs_time, channel, velocity in events:
-            delta_time = abs_time - prev_time
-            
-            if event_type == 'note_on':
-                self.track.append(Message('note_on', note=note, velocity=velocity, 
-                                        channel=channel, time=delta_time))
-            elif event_type == 'note_off':
-                self.track.append(Message('note_off', note=note, velocity=velocity, 
-                                        channel=channel, time=delta_time))
-            
-            prev_time = abs_time
+        # Initialize tracks for each instrument
+        self._initialize_tracks()
 
-def create_midi_from_config(config_file):
-    """Convenience function to create MIDI from configuration file"""
-    # Check if file exists, if not try the config folder
-    config_path = Path(config_file)
-    if not config_path.exists():
-        config_folder_path = Path('config') / config_path.name
-        if config_folder_path.exists():
-            config_path = config_folder_path
+    def load_config(self, config_path: str) -> Dict[str, Any]:
+        """Load and validate configuration file."""
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+            print(f"✓ Loaded configuration: {config['metadata']['title']}")
+            return config
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Configuration file not found: {config_path}")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON in configuration: {e}")
+
+    def _initialize_tracks(self):
+        """Create MIDI tracks for each instrument."""
+        for instrument_id, instrument_config in self.config['instruments'].items():
+            track = mido.MidiTrack()
+            
+            # Set instrument program
+            track.append(mido.Message(
+                'program_change',
+                channel=instrument_config['midi_channel'],
+                program=instrument_config['program_number'],
+                time=0
+            ))
+            
+            self.tracks[instrument_id] = track
+            self.midi_file.tracks.append(track)
+            print(f"✓ Initialized track for {instrument_config['name']} (Channel {instrument_config['midi_channel']})")
+
+    def generate_song(self):
+        """Generate complete song based on configuration structure."""
+        print(f"\n🎵 Generating {self.config['metadata']['title']}...")
+        
+        # Process each section in the song structure
+        for section_name in self.config['song_structure']['sections']:
+            self._generate_section(section_name)
+        
+        # Add final timing to all tracks
+        self._finalize_tracks()
+        
+        print(f"✓ Song generation complete!")
+
+    def _generate_section(self, section_name: str):
+        """Generate a specific section of the song."""
+        section_config = self.config['song_structure']['section_definitions'][section_name]
+        self.current_section = section_name
+        
+        print(f"  Generating section: {section_name} ({section_config['length_bars']} bars)")
+        
+        # Generate each bar in the section
+        for bar_index in range(section_config['length_bars']):
+            chord_name = section_config['chord_progression'][bar_index % len(section_config['chord_progression'])]
+            self._generate_bar(section_config, chord_name, bar_index)
+
+    def _generate_bar(self, section_config: Dict, chord_name: str, bar_index: int):
+        """Generate one bar of music for all instruments."""
+        current_chord = self.config['chord_library'][chord_name]
+        
+        # Generate patterns for each instrument in this section
+        for instrument_id, pattern_name in section_config['pattern_assignment'].items():
+            self._generate_instrument_pattern(instrument_id, pattern_name, current_chord, bar_index)
+
+    def _generate_instrument_pattern(self, instrument_id: str, pattern_name: str, current_chord: Dict, bar_index: int):
+        """Generate pattern for a specific instrument."""
+        pattern = self.config['pattern_library'][pattern_name]
+        instrument = self.config['instruments'][instrument_id]
+        track = self.tracks[instrument_id]
+        
+        # Get the note pattern and associated data
+        note_pattern = pattern['note_pattern']
+        velocity_pattern = pattern['velocity_pattern']
+        duration_pattern = pattern['duration_pattern']
+        
+        # Calculate timing for this bar
+        bar_start_time = bar_index * self.config['metadata']['ticks_per_beat'] * self.config['metadata']['time_signature'][0]
+        subdivision_length = self.config['metadata']['ticks_per_beat'] // 4  # 16th note subdivisions
+        
+        # Process each step in the pattern
+        for step_index, note_value in enumerate(note_pattern):
+            if note_value == 0:  # Rest
+                continue
+                
+            step_time = bar_start_time + (step_index * subdivision_length)
+            velocity = velocity_pattern[step_index] if step_index < len(velocity_pattern) else instrument['default_velocity']
+            duration = duration_pattern[step_index] if step_index < len(duration_pattern) else subdivision_length
+            
+            # Apply swing timing if enabled
+            if self._should_apply_swing(step_index):
+                step_time += self._calculate_swing_offset(subdivision_length)
+            
+            # Apply humanization
+            if self.config.get('global_modifiers', {}).get('humanization', {}).get('enabled', False):
+                step_time, velocity = self._apply_humanization(step_time, velocity)
+            
+            # Get the actual notes to play
+            notes = self._resolve_note_source(pattern['note_source'], current_chord, note_value, step_index, pattern)
+            
+            # Add notes to track
+            for note in notes:
+                if self._is_note_in_range(note, instrument):
+                    self._add_note_to_track(track, note, velocity, duration, step_time, instrument['midi_channel'])
+
+    def _resolve_note_source(self, note_source: str, current_chord: Dict, note_value: int, step_index: int, pattern: Dict) -> List[int]:
+        """Resolve note source to actual MIDI note numbers."""
+        
+        if note_source == "bass_note":
+            return [current_chord['bass_note']]
+        
+        elif note_source == "drum_note":
+            # For drum patterns, use the instrument's note range
+            instrument_id = pattern['instrument']
+            instrument = self.config['instruments'][instrument_id]
+            note_range = instrument['note_range']
+            return [note_range[0]]  # Use the first note in the range
+        
+        elif note_source.startswith("chord_voicing_"):
+            voicing_type = note_source.replace("chord_voicing_", "")
+            return current_chord['voicings'][voicing_type]
+        
+        elif note_source.startswith("scale_"):
+            scale_type = note_source.replace("scale_", "")
+            return self._generate_scale_notes(current_chord, scale_type, note_value, pattern)
+        
+        elif note_source.startswith("arpeggio_"):
+            direction = note_source.replace("arpeggio_", "")
+            return self._generate_arpeggio_notes(current_chord, direction, note_value, step_index, pattern)
+        
+        elif note_source == "walking_pattern":
+            return self._generate_walking_bass(current_chord, note_value, step_index, pattern)
+        
         else:
-            print(f"❌ Config file not found: {config_file}")
-            print(f"❌ Also checked: {config_folder_path}")
-            return None
+            # Default to chord tones
+            root = current_chord['root_note']
+            return [root + interval for interval in current_chord['chord_tones']]
+
+    def _generate_scale_notes(self, current_chord: Dict, scale_type: str, note_value: int, pattern: Dict) -> List[int]:
+        """Generate notes from specified scale."""
+        if scale_type not in current_chord['scales']:
+            scale_type = list(current_chord['scales'].keys())[0]  # Use first available scale
+        
+        scale = current_chord['scales'][scale_type]
+        root = current_chord['root_note']
+        
+        # Get starting degree and direction from pattern
+        start_degree = pattern.get('scale_start_degree', 1) - 1
+        direction = pattern.get('melodic_direction', 'ascending')
+        
+        # Calculate note based on value and direction
+        if direction == 'ascending':
+            degree_index = (start_degree + note_value - 1) % len(scale)
+        else:
+            degree_index = (start_degree - note_value + 1) % len(scale)
+        
+        note = root + scale[degree_index]
+        return [note]
+
+    def _generate_arpeggio_notes(self, current_chord: Dict, direction: str, note_value: int, step_index: int, pattern: Dict) -> List[int]:
+        """Generate arpeggio notes."""
+        chord_tones = current_chord['chord_tones']
+        root = current_chord['root_note']
+        octaves = pattern.get('arpeggio_octaves', 1)
+        
+        # Build extended arpeggio across octaves
+        extended_arpeggio = []
+        for octave in range(octaves + 1):
+            for interval in chord_tones:
+                extended_arpeggio.append(root + interval + (octave * 12))
+        
+        if direction == 'down':
+            extended_arpeggio.reverse()
+        
+        # Select note based on step
+        note_index = (step_index * note_value) % len(extended_arpeggio)
+        return [extended_arpeggio[note_index]]
+
+    def _generate_walking_bass(self, current_chord: Dict, note_value: int, step_index: int, pattern: Dict) -> List[int]:
+        """Generate walking bass line."""
+        algorithm = pattern.get('walking_algorithm', 'diatonic')
+        bass_note = current_chord['bass_note']
+        
+        if algorithm == 'chromatic_approach':
+            # Generate chromatic approach to next chord (simplified)
+            offset = (step_index % 4) - 2  # -2, -1, 0, 1
+            return [bass_note + offset]
+        
+        elif algorithm == 'diatonic':
+            # Use scale steps
+            if 'scales' in current_chord:
+                scale = list(current_chord['scales'].values())[0]
+                step_size = pattern.get('step_size_range', [1, 3])[0]
+                scale_note = bass_note + scale[step_index % len(scale)]
+                return [scale_note]
+        
+        # Default to bass note
+        return [bass_note]
+
+    def _should_apply_swing(self, step_index: int) -> bool:
+        """Check if swing timing should be applied to this step."""
+        swing_config = self.config.get('global_modifiers', {}).get('swing_timing', {})
+        
+        if not swing_config.get('enabled', False):
+            return False
+        
+        # Apply swing to off-beats (assuming 16th note subdivisions)
+        return step_index % 2 == 1
+
+    def _calculate_swing_offset(self, subdivision_length: int) -> int:
+        """Calculate swing timing offset."""
+        swing_ratio = self.config.get('global_modifiers', {}).get('swing_timing', {}).get('swing_ratio', 0.67)
+        swing_offset = int(subdivision_length * (swing_ratio - 0.5))
+        return swing_offset
+
+    def _apply_humanization(self, timing: int, velocity: int) -> Tuple[int, int]:
+        """Apply humanization to timing and velocity."""
+        humanization = self.config.get('global_modifiers', {}).get('humanization', {})
+        
+        timing_variance = humanization.get('timing_variance', 5)
+        velocity_variance = humanization.get('velocity_variance', 8)
+        
+        timing += random.randint(-timing_variance, timing_variance)
+        velocity += random.randint(-velocity_variance, velocity_variance)
+        velocity = max(1, min(127, velocity))  # Keep velocity in valid range
+        
+        return timing, velocity
+
+    def _is_note_in_range(self, note: int, instrument: Dict) -> bool:
+        """Check if note is within instrument's range."""
+        note_range = instrument.get('note_range', [0, 127])
+        return note_range[0] <= note <= note_range[1]
+
+    def _add_note_to_track(self, track: mido.MidiTrack, note: int, velocity: int, duration: int, 
+                          start_time: int, channel: int):
+        """Add a note to the MIDI track with proper timing."""
+        
+        # Calculate time delta from last event
+        current_track_time = sum(msg.time for msg in track)
+        time_delta = max(0, start_time - current_track_time)
+        
+        # Note on
+        track.append(mido.Message(
+            'note_on',
+            channel=channel,
+            note=note,
+            velocity=velocity,
+            time=time_delta
+        ))
+        
+        # Note off
+        track.append(mido.Message(
+            'note_off',
+            channel=channel,
+            note=note,
+            velocity=0,
+            time=duration
+        ))
+
+    def _finalize_tracks(self):
+        """Add final timing adjustments to all tracks."""
+        # Ensure all tracks end at the same time
+        max_length = 0
+        for track in self.tracks.values():
+            track_length = sum(msg.time for msg in track)
+            max_length = max(max_length, track_length)
+        
+        # Pad shorter tracks
+        for track in self.tracks.values():
+            track_length = sum(msg.time for msg in track)
+            if track_length < max_length:
+                track.append(mido.Message('note_off', channel=0, note=60, velocity=0, time=max_length - track_length))
+
+    def save_midi_file(self, output_path: Optional[str] = None):
+        """Save the generated MIDI file."""
+        if output_path is None:
+            output_path = self.config['metadata']['output_filename']
+        
+        # Ensure output directory exists
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        self.midi_file.save(output_path)
+        file_size = Path(output_path).stat().st_size
+        print(f"✓ MIDI file saved: {output_path} ({file_size:,} bytes)")
+        
+        return output_path
+
+    def get_generation_stats(self) -> Dict[str, Any]:
+        """Get statistics about the generated music."""
+        total_notes = 0
+        track_stats = {}
+        
+        for instrument_id, track in self.tracks.items():
+            note_count = sum(1 for msg in track if msg.type == 'note_on')
+            track_stats[instrument_id] = {
+                'note_count': note_count,
+                'instrument_name': self.config['instruments'][instrument_id]['name']
+            }
+            total_notes += note_count
+        
+        return {
+            'total_notes': total_notes,
+            'total_tracks': len(self.tracks),
+            'title': self.config['metadata']['title'],
+            'tempo': self.config['metadata']['tempo'],
+            'track_stats': track_stats
+        }
+
+
+def main():
+    """Main entry point for the universal MIDI generator."""
+    if len(sys.argv) != 2:
+        print("Usage: python universal_midi_generator.py <config_file.json>")
+        print("\nExample configurations available in config/ directory:")
+        config_dir = Path("config")
+        if config_dir.exists():
+            for config_file in config_dir.glob("*.json"):
+                print(f"  - {config_file}")
+        sys.exit(1)
     
-    generator = ConfigurableMIDIGenerator()
-    generator.load_configuration(str(config_path))
-    return generator.create_composition()
+    config_file = sys.argv[1]
+    
+    try:
+        # Generate music
+        generator = UniversalMIDIGenerator(config_file)
+        generator.generate_song()
+        output_file = generator.save_midi_file()
+        
+        # Display generation statistics
+        stats = generator.get_generation_stats()
+        print(f"\n📊 Generation Statistics:")
+        print(f"   Title: {stats['title']}")
+        print(f"   Total Notes: {stats['total_notes']}")
+        print(f"   Total Tracks: {stats['total_tracks']}")
+        print(f"   Tempo: {stats['tempo']} BPM")
+        
+        print(f"\n🎹 Track Details:")
+        for instrument_id, track_stats in stats['track_stats'].items():
+            print(f"   {track_stats['instrument_name']}: {track_stats['note_count']} notes")
+        
+        print(f"\n✅ Universal MIDI generation complete!")
+        return output_file
+        
+    except Exception as e:
+        print(f"❌ Error generating MIDI: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    # Example usage
-    import sys
-    
-    if len(sys.argv) > 1:
-        config_file = sys.argv[1]
-        result = create_midi_from_config(config_file)
-        if result is None:
-            print("\n💡 Available configs:")
-            config_dir = Path('config')
-            if config_dir.exists():
-                for config in config_dir.glob('*.json'):
-                    print(f"   - {config.name}")
-            print("\n🔍 Analysis tools:")
-            print("   python utils/midi_analyzer.py <filename.mid>")
-            print("   python utils/midi_inspector.py <filename.mid>")
-    else:
-        print("Usage: python midi.py <config_file.json>")
-        print("Or use as a module: from midi import ConfigurableMIDIGenerator")
-        print("\n💡 Available configs:")
-        config_dir = Path('config')
-        if config_dir.exists():
-            for config in config_dir.glob('*.json'):
-                print(f"   - {config.name}")
-        print("\n🔍 Analysis tools:")
-        print("   python utils/midi_analyzer.py <filename.mid>")
-        print("   python utils/midi_inspector.py <filename.mid>")
+    main()

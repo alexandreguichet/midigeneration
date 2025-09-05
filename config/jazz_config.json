@@ -119,42 +119,42 @@
   "patterns": {
     "intro": {
       "right_hand": [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0],
-      "left_hand": [2, 0, 1, 1, 1, 0, 0, 0, 2, 0, 1, 1, 1, 0, 0, 0],
+      "left_hand": [2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0],
       "rh_velocity": 75,
       "lh_velocity": 65,
       "rh_duration": 240,
-      "lh_chord_duration": 360,
-      "lh_bass_duration": 240,
+      "lh_chord_duration": 240,
+      "lh_bass_duration": 360,
       "melody_type": "chord"
     },
     "verse": {
       "right_hand": [3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0],
-      "left_hand": [2, 0, 1, 1, 1, 0, 0, 0, 2, 0, 1, 1, 1, 0, 0, 0],
+      "left_hand": [2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0],
       "rh_velocity": 85,
       "lh_velocity": 70,
       "rh_duration": 180,
-      "lh_chord_duration": 360,
-      "lh_bass_duration": 240,
+      "lh_chord_duration": 240,
+      "lh_bass_duration": 360,
       "melody_type": "melody"
     },
     "solo": {
       "right_hand": [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-      "left_hand": [2, 0, 1, 1, 1, 0, 0, 0, 2, 0, 1, 1, 1, 0, 0, 0],
+      "left_hand": [2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0],
       "rh_velocity": 90,
       "lh_velocity": 70,
       "rh_duration": 120,
-      "lh_chord_duration": 360,
-      "lh_bass_duration": 240,
+      "lh_chord_duration": 240,
+      "lh_bass_duration": 360,
       "melody_type": "solo"
     },
     "bridge": {
       "right_hand": [3, 0, 3, 3, 0, 3, 0, 3, 3, 0, 3, 3, 0, 3, 0, 3],
-      "left_hand": [2, 0, 1, 1, 1, 0, 0, 0, 2, 0, 1, 1, 1, 0, 0, 0],
+      "left_hand": [2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0],
       "rh_velocity": 88,
       "lh_velocity": 75,
       "rh_duration": 160,
-      "lh_chord_duration": 360,
-      "lh_bass_duration": 240,
+      "lh_chord_duration": 240,
+      "lh_bass_duration": 360,
       "melody_type": "melody"
     },
     "default": {

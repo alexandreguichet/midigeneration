@@ -151,8 +151,10 @@ class ConfigurableMIDIGenerator:
                         events.append(('note_on', note, current_time, 0, velocity))
                         events.append(('note_off', note, current_time + duration, 0, velocity))
         
-        # Left hand events
+        # Left hand events with overlap prevention
         if 'left_hand' in chord_voicing:
+            active_notes = {}  # Track active notes to prevent overlaps
+            
             for i, pattern_type in enumerate(lh_pattern):
                 if pattern_type > 0:
                     current_time = start_time + (i * sixteenth_note)
@@ -161,13 +163,27 @@ class ConfigurableMIDIGenerator:
                     if pattern_type == 1:  # Chord
                         notes = chord_voicing['left_hand'].get('chord', [])
                         duration = patterns.get('lh_chord_duration', ticks_per_beat // 2)
+                        note_type = 'chord'
                     elif pattern_type == 2:  # Bass
                         notes = [chord_voicing['left_hand'].get('bass', 48)]
                         duration = patterns.get('lh_bass_duration', ticks_per_beat)
+                        note_type = 'bass'
                     
+                    # Stop any overlapping notes of the same type
+                    if note_type in active_notes:
+                        for note, end_time in active_notes[note_type]:
+                            if end_time > current_time:
+                                # Cut off the previous note to avoid overlap
+                                events.append(('note_off', note, current_time - 1, 1, velocity))
+                    
+                    # Start new notes
+                    note_ends = []
                     for note in notes:
                         events.append(('note_on', note, current_time, 1, velocity))
                         events.append(('note_off', note, current_time + duration, 1, velocity))
+                        note_ends.append((note, current_time + duration))
+                    
+                    active_notes[note_type] = note_ends
         
         return events
     

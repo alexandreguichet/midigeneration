@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "title": "Simple Jazz Ballad",
+    "tempo": 120,
+    "time_signature": [4, 4],
+    "ticks_per_beat": 480,
+    "output_filename": "simple_ballad.mid"
+  },
+  "chord_progressions": {
+    "structure": ["verse"],
+    "sections": {
+      "verse": ["Cm7", "Fm7", "G7", "Cm7", "Am7b5", "D7", "Gm7", "C7"]
+    }
+  },
+  "chord_voicings": {
+    "Cm7": {
+      "right_hand": [72, 75, 70],
+      "left_hand": {
+        "bass": 48,
+        "chord": [55, 58]
+      }
+    },
+    "Fm7": {
+      "right_hand": [77, 75, 72],
+      "left_hand": {
+        "bass": 53,
+        "chord": [60, 63]
+      }
+    },
+    "G7": {
+      "right_hand": [74, 72, 69],
+      "left_hand": {
+        "bass": 55,
+        "chord": [59, 62]
+      }
+    },
+    "Am7b5": {
+      "right_hand": [69, 67, 64],
+      "left_hand": {
+        "bass": 57,
+        "chord": [60, 63]
+      }
+    },
+    "D7": {
+      "right_hand": [66, 69, 72],
+      "left_hand": {
+        "bass": 50,
+        "chord": [54, 57]
+      }
+    },
+    "Gm7": {
+      "right_hand": [67, 70, 74],
+      "left_hand": {
+        "bass": 55,
+        "chord": [58, 62]
+      }
+    },
+    "C7": {
+      "right_hand": [72, 70, 67],
+      "left_hand": {
+        "bass": 48,
+        "chord": [52, 55]
+      }
+    }
+  },
+  "patterns": {
+    "verse": {
+      "right_hand": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0],
+      "left_hand": [2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0],
+      "rh_velocity": 85,
+      "lh_velocity": 70,
+      "rh_duration": 360,
+      "lh_chord_duration": 480,
+      "lh_bass_duration": 960
+    },
+    "default": {
+      "right_hand": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0],
+      "left_hand": [2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0],
+      "rh_velocity": 85,
+      "lh_velocity": 70,
+      "rh_duration": 360,
+      "lh_chord_duration": 480,
+      "lh_bass_duration": 960
+    }
+  }
+}

@@ -31,7 +31,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
+# Virtual environments (Poetry manages dependencies)
 .env
 .venv
 env/
@@ -39,6 +39,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Poetry
+poetry.lock
 
 # IDE
 .vscode/
@@ -70,3 +73,15 @@ Thumbs.db
 # Documentation build files
 docs/_build/
 docs/.doctrees/
+
+# Testing and Coverage
+.coverage
+.pytest_cache/
+htmlcov/
+coverage.lcov
+.tox/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json

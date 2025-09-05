@@ -1,5 +1,4 @@
 import json
-import os
 from mido import MidiFile, MidiTrack, Message, MetaMessage, bpm2tempo
 from pathlib import Path
 

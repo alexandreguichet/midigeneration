@@ -2,20 +2,47 @@
 
 A flexible, configuration-driven MIDI composition generator for creating jazz piano arrangements with sophisticated melodic variations.
 
-## 🚀 Quick Start
+## 🚀 Quick Start with Poetry
 
+### Prerequisites
+- Python 3.9+ 
+- [Poetry](https://python-poetry.org/docs/#installation) for dependency management
+
+### Installation
+```bash
+# Install Poetry if you haven't already
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Clone the repository
+git clone https://github.com/alexandreguichet/midigeneration.git
+cd midigeneration
+
+# Install dependencies
+poetry install
+```
+
+### Usage
 ```bash
 # Generate a jazz composition
-python midi.py jazz_config.json
+poetry run midi-generate jazz_config.json
+
+# Or use the main script directly
+poetry run python main.py jazz_config.json
 
 # Analyze the generated MIDI
-python utils/midi_analyzer.py jazz_variations.mid
+poetry run python utils/midi_analyzer.py jazz_variations.mid
 ```
 
 ## 📁 Project Structure
 
 ```
-├── 📜 midi.py                    # Main MIDI generator
+├── 📜 main.py                    # Main launcher script
+├── 📦 pyproject.toml             # Poetry configuration & dependencies
+├── 🧪 run_tests.py               # Test runner with coverage
+│
+├── 📁 src/                       # Source code
+│   ├── __init__.py
+│   └── midi.py                   # Main MIDI generator
 │
 ├── 📁 config/                    # Configuration files
 │   ├── jazz_config.json
@@ -24,6 +51,10 @@ python utils/midi_analyzer.py jazz_variations.mid
 ├── 📁 utils/                     # Analysis and utility tools
 │   ├── midi_analyzer.py         # MIDI file analyzer
 │   └── midi_inspector.py        # Detailed MIDI inspector
+│
+├── 📁 test/                      # Unit tests
+│   ├── __init__.py
+│   └── test_midi.py              # Comprehensive test suite
 │
 ├── 📁 output/                    # Generated MIDI files
 │   └── *.mid                    # (auto-generated)
@@ -39,37 +70,67 @@ python utils/midi_analyzer.py jazz_variations.mid
 - **🎶 Melodic Variations**: Multiple right-hand styles (comping, melody, solo)
 - **🎯 Configurable**: JSON-based configuration system
 - **📊 Analysis Tools**: Comprehensive MIDI file analysis
-- **📁 Organized Structure**: Clean separation of configs, outputs, docs, and utilities
+- **🧪 100% Test Coverage**: Comprehensive unit tests with coverage reporting
+- **📦 Poetry Management**: Modern Python dependency management
+- **🔍 Code Quality**: Black, isort, flake8, mypy integration
 
 ## 🎼 Available Configurations
 
 - **`jazz_config.json`**: 28-bar jazz piece with intro/verse/solo/bridge
 - **`simple_ballad_config.json`**: Gentle ballad arrangement
 
-## 🔧 Usage Examples
+## 🔧 Development Commands
 
-### Generate from Config
+### Testing & Quality Assurance
 ```bash
-# Use config filename (automatically checks config/ folder)
-python midi.py jazz_config.json
+# Run all tests with coverage
+poetry run python run_tests.py
+
+# Run only tests
+poetry run python run_tests.py --test-only
+
+# Run only linting/code quality checks
+poetry run python run_tests.py --lint-only
+
+# Run tests directly with pytest
+poetry run pytest
+
+# Generate coverage report
+poetry run pytest --cov=src --cov-report=html
+```
+
+### Code Formatting & Linting
+```bash
+# Format code with Black
+poetry run black src/ test/
+
+# Sort imports with isort
+poetry run isort src/ test/
+
+# Lint with flake8
+poetry run flake8 src/ test/
+
+# Type checking with mypy
+poetry run mypy src/
+```
+
+### Usage Examples
+```bash
+# Generate from config (automatically checks config/ folder)
+poetry run midi-generate jazz_config.json
+poetry run python main.py jazz_config.json
 
 # Or use full path
-python midi.py config/jazz_config.json
-```
+poetry run midi-generate config/jazz_config.json
 
-### Analyze Generated MIDI
-```bash
-# Analyzer automatically checks output/ folder
-python utils/midi_analyzer.py jazz_variations.mid
+# Analyze generated MIDI (automatically checks output/ folder)
+poetry run python utils/midi_analyzer.py jazz_variations.mid
 
 # Detailed inspection
-python utils/midi_inspector.py jazz_variations.mid
-```
+poetry run python utils/midi_inspector.py jazz_variations.mid
 
-### List Available Configs
-```bash
-# Run without arguments to see available configs and tools
-python midi.py
+# List available configs and tools
+poetry run python main.py
 ```
 
 ## 📖 Documentation
@@ -77,16 +138,19 @@ python midi.py
 - **[📚 Full Documentation](docs/README.md)**: Complete API and configuration guide
 - **[🎵 Jazz Variations Guide](docs/JAZZ_VARIATIONS_GUIDE.md)**: Jazz-specific features and examples
 
-## 🎯 Requirements
+## 🧪 Testing
 
-```bash
-pip install mido
-```
+The project includes comprehensive unit tests with 100% code coverage:
 
-## 🎨 Quick Example
+- **Unit Tests**: Complete test suite for all classes and functions
+- **Coverage Reporting**: HTML and LCOV coverage reports
+- **Continuous Integration**: Ready for CI/CD pipelines
+- **Mock Testing**: Comprehensive mocking of external dependencies
+
+## 🎨 API Usage
 
 ```python
-from midi import ConfigurableMIDIGenerator
+from src.midi import ConfigurableMIDIGenerator
 
 # Create generator
 generator = ConfigurableMIDIGenerator()
@@ -100,7 +164,7 @@ print(f"Generated: {output_file}")
 
 ## 🏗️ Project Organization
 
-### **Core Files**
+### **Source Code** (`src/`)
 - `midi.py` - Main MIDI generation engine
 
 ### **Configuration** (`config/`)
@@ -109,11 +173,52 @@ print(f"Generated: {output_file}")
 ### **Utilities** (`utils/`)
 - Analysis and debugging tools for generated MIDI files
 
+### **Tests** (`test/`)
+- Comprehensive unit test suite with mocking
+
 ### **Output** (`output/`)
 - Auto-generated MIDI files (ignored by git)
 
 ### **Documentation** (`docs/`)
 - Comprehensive guides and API documentation
+
+## 📦 Dependencies
+
+### Runtime Dependencies
+- **mido**: MIDI file manipulation library
+
+### Development Dependencies
+- **pytest**: Testing framework
+- **pytest-cov**: Coverage reporting
+- **coverage**: Coverage measurement
+- **black**: Code formatting
+- **isort**: Import sorting
+- **flake8**: Linting
+- **mypy**: Type checking
+
+## 🤝 Contributing
+
+1. **Setup development environment**:
+   ```bash
+   poetry install
+   ```
+
+2. **Run tests before committing**:
+   ```bash
+   poetry run python run_tests.py
+   ```
+
+3. **Format code**:
+   ```bash
+   poetry run black src/ test/
+   poetry run isort src/ test/
+   ```
+
+4. **Check code quality**:
+   ```bash
+   poetry run flake8 src/ test/
+   poetry run mypy src/
+   ```
 
 ---
 *Generate professional-quality MIDI compositions with ease! 🎹✨*
